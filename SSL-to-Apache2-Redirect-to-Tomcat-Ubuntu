@@ -24,7 +24,6 @@ Listen 443
         Redirect "/" "https://13.233.5.3"
 </VirtualHost>
 <VirtualHost *:443>
-	DocumentRoot /var/www/html
     ServerName 13.233.5.3
     SSLEngine on
     SSLCertificateFile "/home/ubuntu/certificate/certificate.pem"
