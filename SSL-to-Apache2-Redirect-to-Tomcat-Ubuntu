@@ -1,0 +1,48 @@
+sudo apt-get update
+mkdir certificate
+cd certificate
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout privatekey.key -out certificate.pem
+cd
+sudo apt install openjdk-8-jdk -y
+java -version
+wget https://downloads.apache.org/tomcat/tomcat-9/v9.0.31/bin/apache-tomcat-9.0.31.tar.gz
+tar -zvxf apache-tomcat-9.0.31.tar.gz
+mv apache-tomcat-9.0.31 tomcat-9
+cd tomcat-9
+cd bin
+./startup.sh
+cd
+sudo apt-get install apache2
+sudo systemctl start apache2
+cd /etc/apache2/sites-available
+ls
+sudo vi https.conf
+
+Listen 443
+<VirtualHost *:80>
+        ServerName 13.233.5.3
+        Redirect "/" "https://13.233.5.3"
+</VirtualHost>
+<VirtualHost *:443>
+	DocumentRoot /var/www/html
+    ServerName 13.233.5.3
+    SSLEngine on
+    SSLCertificateFile "/home/ubuntu/certificate/certificate.pem"
+    SSLCertificateKeyFile "/home/ubuntu/certificate/privatekey.key"
+    
+    ProxyRequests Off
+	ProxyPreserveHost On
+
+	ProxyPass / http://13.233.5.3:8080/
+	ProxyPassReverse / http://13.233.5.3:8080/	
+</VirtualHost>
+
+sudo a2ensite https.conf
+sudo a2enmod ssl
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+cd /etc/apache2
+sudo vi ports.conf
+	Listen 80   // just leave this, comment all the rest
+sudo systemctl reload apache2
+sudo systemctl restart apache2
